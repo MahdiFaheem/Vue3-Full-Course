@@ -17,7 +17,7 @@
     </ul>
     <!--<input :[attribute]="newHero">-->
     <form class="mt-10"  @submit.prevent="addHero">
-    <input class="border rounded" v-model.trim="newHero" placeholder="Type hero name here.">
+    <input class="border rounded" v-model.trim="newHero" placeholder="Type hero name here." ref="newHeroRef">
     <button class="border rounded bg-gradient-to-r from-red-700 to-pink-500 text-white" type="submit">Add Hero</button>
     
   <!-- <button :disabled="isDisabled" @click="newHero='Wonder Women'">Add Hero</button>-->
@@ -28,20 +28,42 @@
 </template>
 
 <script>
+import {computed, onMounted, ref} from "vue";
 export default {
-    data(){
-    return{ 
-      
-      attribute: "value",
-      isDisabled:false,
-      newHero: "",
-      dcHeros: [
+  setup(){
+    const newHeroRef=ref();
+    const newHero=ref("");
+    const dcHeros= ref([
         {name: "SuperGirl"},
         {name: "Flash"},
         {name: "BatMan"},
         {name: "Arrow"},
         {name: "SuperMan"},
-      ],
+      ]);
+      function remove(index){
+      dcHeros.value=dcHeros.value.filter((hero,i) =>(i!=index));
+    }
+    function addHero(){
+      if(newHero.value!=="")
+      {
+        dcHeros.value.unshift({name: newHero.value});
+        newHero.value='';
+      }
+    }
+    onMounted(()=>{
+      newHeroRef.value.focus();
+    });
+    const herosCount=computed({
+      get: ()=>dcHeros.value.length,
+    })
+      return {dcHeros,newHero,remove,addHero,newHeroRef,herosCount}
+  },
+    data(){
+    return{ 
+      
+      attribute: "value",
+      isDisabled:false,
+      
       fName: "A",
       lName: "B",
       
@@ -49,17 +71,9 @@ export default {
   },
 
   methods:{
-    addHero(){
-      if(this.newHero!=="")
-      {
-        this.dcHeros.unshift({name: this.newHero});
-        this.newHero='';
-      }
-    },
+    
 
-    remove(index){
-      this.dcHeros=this.dcHeros.filter((hero,i) =>(i!=index));
-    },
+    
 
     setFullName(){
       this.fullName=`X Y`
@@ -67,9 +81,7 @@ export default {
   },
 
   computed:{
-    herosCount(){
-      return this.dcHeros.length+" heros";
-    },
+    
 
     fullName:{
       get(){
@@ -84,6 +96,9 @@ export default {
       }
     }
   },
+  mounted(){
+    //this.$refs.newHeroRef.focus();
+  }
  
 }
 
